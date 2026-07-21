@@ -36,6 +36,8 @@ The weights are configured in `config.json`. When scores are effectively tied, f
 
 Moving an item to trash relocates it to a `#trash-mdmgr` directory inside the corresponding movie or series library. It can then be restored from the UI. Emptying the trash permanently deletes the selected files and requires explicit confirmation.
 
+Framekeeper creates a `.plexignore` file in each existing trash directory so Plex does not index recoverable files as movies or TV seasons. After upgrading, restart Framekeeper and rescan the affected Plex library to remove any trash items that Plex indexed previously.
+
 Framekeeper changes real files on the NAS. Before using its trash features, make sure your library is backed up and the configured movie, series, and trash paths are correct.
 
 Credentials are deliberately kept outside this repository. `config.json`, `.env` files, credential files, private keys, the local SQLite database, and local editor/agent settings are excluded by `.gitignore`.
