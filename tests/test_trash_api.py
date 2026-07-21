@@ -187,6 +187,21 @@ class TestMoveSeriesToTrash(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("confirm", response.get_json()["error"])
 
+    def test_error_language_follows_accept_language(self):
+        english = self.client.post(
+            "/api/trash/move",
+            json={"media_item_ids": [1]},
+            headers={"Accept-Language": "en-US,en;q=0.9"},
+        )
+        spanish = self.client.post(
+            "/api/trash/move",
+            json={"media_item_ids": [1]},
+            headers={"Accept-Language": "es-MX,es;q=0.9"},
+        )
+
+        self.assertEqual(english.get_json()["error"], "confirm=true is required")
+        self.assertEqual(spanish.get_json()["error"], "se requiere confirm=true")
+
 
 if __name__ == "__main__":
     unittest.main()

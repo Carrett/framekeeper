@@ -88,3 +88,15 @@ CREATE TABLE IF NOT EXISTS scan_run (
     current_file    TEXT,
     error_message   TEXT
 );
+
+CREATE TABLE IF NOT EXISTS poster_cache (
+    cache_key       TEXT PRIMARY KEY,
+    media_type      TEXT NOT NULL CHECK(media_type IN ('movie','tv')),
+    title           TEXT NOT NULL,
+    year            INTEGER,
+    tmdb_id         INTEGER,
+    matched_title   TEXT,
+    poster_path     TEXT,
+    fetched_at      TEXT NOT NULL,
+    status          TEXT NOT NULL CHECK(status IN ('found','not_found'))
+);

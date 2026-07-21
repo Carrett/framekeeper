@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-21
+
+### Added
+
+- Add optional TMDB poster artwork to the movie and TV library views.
+- Match TMDB results by normalized title and movie release year to reduce
+  incorrect artwork assignments.
+- Cache successful and missing TMDB matches in SQLite to avoid repeated API
+  requests.
+- Add placeholder artwork so the library remains fully functional when TMDB is
+  not configured or no exact match is found.
+- Keep the TMDB read token on the server and expose only local poster endpoints
+  to the browser.
+- Add TMDB attribution and automated coverage for matching, caching, disabled
+  integration, and poster URL validation.
+- Add automatic browser-language detection with Spanish (Spain) and English
+  interface translations.
+
+### Changed
+
+- Document TMDB configuration and optional behavior.
+- Refresh the project screenshot to show poster artwork in the movie library.
+
 ## [0.1.1] - 2026-07-21
 
 ### Fixed
@@ -32,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mount-status checks and restricted CIFS remount support.
 - Spanish-language web interface and project documentation.
 
-[Unreleased]: https://github.com/Carrett/framekeeper/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/Carrett/framekeeper/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/Carrett/framekeeper/compare/v0.1.1...v0.2.0
 [0.1.1]: https://github.com/Carrett/framekeeper/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/Carrett/framekeeper/releases/tag/v0.1.0

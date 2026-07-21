@@ -1,5 +1,6 @@
 import { api } from "./api.js";
 import { qs } from "./utils.js";
+import { t } from "./i18n.js";
 
 let pollTimer = null;
 let onCompleteCallback = () => {};
@@ -41,7 +42,7 @@ export function initScanProgress(onComplete) {
       await api.scanStart();
       poll();
     } catch (err) {
-      alert(`No se pudo iniciar el escaneo: ${err.message}`);
+      alert(t("scan.failed", { error: err.message }));
     }
   });
 

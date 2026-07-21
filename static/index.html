@@ -17,92 +17,99 @@
       </span>
       <span><strong class="brand-mark">framekeeper</strong><small class="brand-sub">MEDIA LIBRARY INTELLIGENCE</small></span>
     </div>
-    <nav class="tabs" id="main-tabs" aria-label="Navegación principal">
-      <button class="tab-btn active" data-tab="movies"><span class="nav-icon">▰</span>Películas</button>
-      <button class="tab-btn" data-tab="series"><span class="nav-icon">▦</span>Series</button>
-      <button class="tab-btn" data-tab="duplicates"><span class="nav-icon">◇</span>Duplicados</button>
-      <button class="tab-btn" data-tab="trash"><span class="nav-icon">⌫</span>Papelera</button>
+    <nav class="tabs" id="main-tabs" aria-label="Navegación principal" data-i18n-aria-label="nav.label">
+      <button class="tab-btn active" data-tab="movies"><span class="nav-icon">▰</span><span data-i18n="nav.movies">Películas</span></button>
+      <button class="tab-btn" data-tab="series"><span class="nav-icon">▦</span><span data-i18n="nav.series">Series</span></button>
+      <button class="tab-btn" data-tab="duplicates"><span class="nav-icon">◇</span><span data-i18n="nav.duplicates">Duplicados</span></button>
+      <button class="tab-btn" data-tab="trash"><span class="nav-icon">⌫</span><span data-i18n="nav.trash">Papelera</span></button>
     </nav>
     <div class="topbar-actions">
       <span id="mount-banner" class="badge badge-warning hidden">NAS no montada</span>
-      <button id="scan-btn" class="btn btn-primary"><span class="scan-icon">⌁</span> Escanear biblioteca</button>
+      <button id="scan-btn" class="btn btn-primary"><span class="scan-icon">⌁</span> <span data-i18n="scan.start">Escanear biblioteca</span></button>
     </div>
   </header>
 
   <div id="scan-progress" class="progress-wrap hidden">
     <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
     <div class="progress-label" id="progress-label"></div>
-    <button id="scan-cancel-btn" class="btn btn-ghost btn-sm">Cancelar</button>
+    <button id="scan-cancel-btn" class="btn btn-ghost btn-sm" data-i18n="scan.cancel">Cancelar</button>
   </div>
 
   <main>
     <section class="page-heading">
       <div>
-        <span class="eyebrow">BIBLIOTECA / <span id="view-eyebrow">PELÍCULAS</span></span>
-        <h1 id="view-title">Tu colección de películas</h1>
-        <p id="view-description">Explora, compara y mantén tu filmoteca perfectamente organizada.</p>
+        <span class="eyebrow"><span data-i18n="library.label">BIBLIOTECA</span> / <span id="view-eyebrow" data-i18n="view.movies.eyebrow">PELÍCULAS</span></span>
+        <h1 id="view-title" data-i18n="view.movies.title">Tu colección de películas</h1>
+        <p id="view-description" data-i18n="view.movies.description">Explora, compara y mantén tu filmoteca perfectamente organizada.</p>
       </div>
-      <div class="system-status"><span class="status-dot"></span><span><strong>Sistema listo</strong><small>Biblioteca conectada</small></span></div>
+      <div class="system-status"><span class="status-dot"></span><span><strong data-i18n="status.ready">Sistema listo</strong><small data-i18n="status.connected">Biblioteca conectada</small></span></div>
     </section>
     <section id="view-movies" class="view active">
       <div class="toolbar surface-toolbar">
-        <div class="toolbar-label"><span>Vista general</span><small>Todos tus archivos de vídeo</small></div>
+        <div class="toolbar-label"><span data-i18n="toolbar.overview">Vista general</span><small data-i18n="toolbar.allVideos">Todos tus archivos de vídeo</small></div>
         <label class="field">
-          Ordenar por
+          <span data-i18n="sort.by">Ordenar por</span>
           <select id="movies-sort">
-            <option value="size">Tamaño</option>
-            <option value="name">Nombre</option>
-            <option value="quality">Calidad</option>
-            <option value="date">Fecha</option>
+            <option value="size" data-i18n="sort.size">Tamaño</option>
+            <option value="name" data-i18n="sort.name">Nombre</option>
+            <option value="quality" data-i18n="sort.quality">Calidad</option>
+            <option value="date" data-i18n="sort.date">Fecha</option>
           </select>
         </label>
         <label class="field">
-          Orden
+          <span data-i18n="sort.order">Orden</span>
           <select id="movies-order">
-            <option value="desc">Descendente</option>
-            <option value="asc">Ascendente</option>
+            <option value="desc" data-i18n="sort.desc">Descendente</option>
+            <option value="asc" data-i18n="sort.asc">Ascendente</option>
           </select>
         </label>
         <span class="toolbar-info" id="movies-count"></span>
       </div>
-      <div id="movies-table-wrap"><div class="empty-state">Cargando…</div></div>
+      <div id="movies-table-wrap"><div class="empty-state" data-i18n="common.loading">Cargando…</div></div>
     </section>
 
     <section id="view-series" class="view hidden">
       <div class="toolbar surface-toolbar">
-        <div class="toolbar-label"><span>Catálogo de series</span><small>Agrupado por temporadas</small></div>
+        <div class="toolbar-label"><span data-i18n="toolbar.seriesCatalog">Catálogo de series</span><small data-i18n="toolbar.bySeasons">Agrupado por temporadas</small></div>
         <label class="field">
-          Ordenar por
+          <span data-i18n="sort.by">Ordenar por</span>
           <select id="series-sort">
-            <option value="size">Tamaño</option>
-            <option value="name">Nombre</option>
+            <option value="size" data-i18n="sort.size">Tamaño</option>
+            <option value="name" data-i18n="sort.name">Nombre</option>
           </select>
         </label>
         <span class="toolbar-info" id="series-count"></span>
       </div>
-      <div id="series-tree"><div class="empty-state">Cargando…</div></div>
+      <div id="series-tree"><div class="empty-state" data-i18n="common.loading">Cargando…</div></div>
     </section>
 
     <section id="view-duplicates" class="view hidden">
       <div class="toolbar surface-toolbar">
         <div class="subtabs" id="duplicates-subtabs">
-          <button class="subtab-btn active" data-dup-type="movie">Películas</button>
-          <button class="subtab-btn" data-dup-type="series">Series</button>
+          <button class="subtab-btn active" data-dup-type="movie" data-i18n="nav.movies">Películas</button>
+          <button class="subtab-btn" data-dup-type="series" data-i18n="nav.series">Series</button>
         </div>
         <span class="toolbar-info" id="duplicates-summary"></span>
       </div>
-      <div id="duplicates-list"><div class="empty-state">Cargando…</div></div>
+      <div id="duplicates-list"><div class="empty-state" data-i18n="common.loading">Cargando…</div></div>
     </section>
 
     <section id="view-trash" class="view hidden">
       <div class="toolbar surface-toolbar">
-        <div class="toolbar-label"><span>Elementos eliminados</span><small>Puedes restaurarlos cuando quieras</small></div>
+        <div class="toolbar-label"><span data-i18n="toolbar.removed">Elementos eliminados</span><small data-i18n="toolbar.restoreHint">Puedes restaurarlos cuando quieras</small></div>
         <span class="toolbar-info" id="trash-count"></span>
-        <button id="empty-trash-btn" class="btn btn-danger btn-sm">Vaciar papelera</button>
+        <button id="empty-trash-btn" class="btn btn-danger btn-sm" data-i18n="trash.emptyButton">Vaciar papelera</button>
       </div>
-      <div id="trash-list"><div class="empty-state">Cargando…</div></div>
+      <div id="trash-list"><div class="empty-state" data-i18n="common.loading">Cargando…</div></div>
     </section>
   </main>
+
+  <footer class="credits">
+    <a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" class="tmdb-mark" aria-label="The Movie Database">
+      <img src="https://www.themoviedb.org/assets/2/v4/logos/v2/blue_short-8e7b30f73a4020692ccca9c88bafe5dcb6f8a62a4c6bc55cd9ba82bb2cd95f6c.svg" alt="TMDB" />
+    </a>
+    <span>This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+  </footer>
 
   <div id="modal-root"></div>
 

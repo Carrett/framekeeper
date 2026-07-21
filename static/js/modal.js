@@ -1,6 +1,7 @@
 import { el, qs } from "./utils.js";
+import { t } from "./i18n.js";
 
-export function confirmModal({ title, bodyNode, message, danger = false, confirmLabel = "Confirmar" }) {
+export function confirmModal({ title, bodyNode, message, danger = false, confirmLabel = "OK" }) {
   return new Promise((resolve) => {
     const root = qs("#modal-root");
 
@@ -19,7 +20,7 @@ export function confirmModal({ title, bodyNode, message, danger = false, confirm
           el("h3", { class: danger ? "modal-danger-text" : "" }, title),
           content,
           el("div", { class: "modal-actions" }, [
-            el("button", { class: "btn btn-ghost", onclick: () => close(false) }, "Cancelar"),
+            el("button", { class: "btn btn-ghost", onclick: () => close(false) }, t("common.cancel")),
             el(
               "button",
               { class: danger ? "btn btn-danger" : "btn btn-primary", onclick: () => close(true) },

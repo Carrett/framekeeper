@@ -2,7 +2,9 @@
 
 Framekeeper is a self-hosted web application for inspecting, organizing, and deduplicating a movie and TV library stored on a NAS. It scans video files, extracts technical metadata with `ffprobe`, groups likely duplicates, scores their quality, and helps you reclaim space without immediately deleting anything.
 
-The interface is currently in Spanish, while this documentation is in English.
+The interface automatically uses Spanish (Spain) when the browser's preferred
+language is Spanish, and English for every other language. This documentation is
+in English.
 
 ![Framekeeper movie library dashboard](docs/images/framekeeper-dashboard.png)
 
@@ -16,6 +18,7 @@ The interface is currently in Spanish, while this documentation is in English.
 - Assigns configurable quality scores and recommends which copy to keep.
 - Runs library scans in the background with progress reporting and cancellation.
 - Caches scan results and technical metadata in SQLite.
+- Optionally displays movie and TV poster artwork from TMDB.
 - Moves unwanted files into a recoverable trash directory on the NAS.
 - Restores trashed files or permanently removes them after explicit confirmation.
 - Checks the NAS mount and can retry mounting it through a narrowly scoped `sudoers` rule.
@@ -81,6 +84,7 @@ The configuration has four sections:
 | `nas` | NAS address, SMB share, mount point, library folders, trash folder, credential file, and mount wrapper |
 | `db_path` | Path of the local SQLite database |
 | `server` | Address and port used by the Flask server |
+| `tmdb` | Optional TMDB read token and metadata language used for poster artwork |
 | `scoring` | Weights used for duplicate quality recommendations |
 
 Example NAS settings:
@@ -101,6 +105,27 @@ Example NAS settings:
 ```
 
 `movies_dir` and `series_dir` are resolved relative to `mount_point`.
+
+### TMDB posters
+
+Framekeeper can look up movie and TV posters from TMDB. Create an API Read Access
+Token in your TMDB account settings, then either add it to the local `config.json`:
+
+```json
+"tmdb": {
+  "read_access_token": "YOUR_TMDB_API_READ_ACCESS_TOKEN",
+  "language": "es-ES"
+}
+```
+
+or provide it through the `TMDB_READ_ACCESS_TOKEN` environment variable. The
+token stays on the server. Matches and missing results are cached in SQLite, and
+temporary TMDB errors are retried later. Restart Framekeeper after changing the
+configuration; posters are loaded as the movie and series views are opened.
+
+TMDB integration is entirely optional. If the token is omitted or left empty,
+Framekeeper does not contact TMDB and the library remains fully functional with
+placeholder artwork.
 
 ### NAS credentials
 
@@ -196,7 +221,7 @@ The tests cover filename parsing, title normalization, quality scoring, recommen
 
 ## Known limitations
 
-- The web interface is currently Spanish-only.
+- The web interface currently supports Spanish and English only.
 - Filename parsing is heuristic and may not recognize every naming convention.
 - Duplicate recommendations depend on filename quality and available `ffprobe` metadata.
 - There is no built-in user authentication or authorization.

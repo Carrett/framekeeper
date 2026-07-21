@@ -1,18 +1,19 @@
 import { api } from "./api.js";
-import { el, qs, formatBytes } from "./utils.js";
+import { el, qs, formatBytes, posterThumb } from "./utils.js";
 import { confirmModal } from "./modal.js";
+import { t } from "./i18n.js";
 
 let cachedShows = [];
 
 async function trashEpisode(episode, onDone) {
   const confirmed = await confirmModal({
-    title: "Mover a la papelera",
+    title: t("series.trashEpisode"),
     danger: true,
-    confirmLabel: "Mover a papelera",
+    confirmLabel: t("movies.trashConfirm"),
     bodyNode: el("div", {}, [
       el("p", {}, episode.filename),
-      el("p", {}, `Tamaño: ${formatBytes(episode.size_bytes)}`),
-      el("p", {}, `Vídeo: ${episode.video_codec || "—"} ${episode.width ? `${episode.width}x${episode.height}` : ""}`),
+      el("p", {}, `${t("common.size")}: ${formatBytes(episode.size_bytes)}`),
+      el("p", {}, `${t("common.video")}: ${episode.video_codec || "—"} ${episode.width ? `${episode.width}x${episode.height}` : ""}`),
     ]),
   });
   if (!confirmed) return;
@@ -30,20 +31,20 @@ async function trashSeriesSelection(show, { scope = "show", season = null } = {}
     : selectedSeason?.episode_count || 0;
   const totalSize = isWholeShow ? show.total_size : selectedSeason?.total_size;
   const selectionLabel = isWholeShow
-    ? `la serie completa “${show.show}”`
+    ? t("series.wholeSelection", { show: show.show })
     : season == null
-      ? `los episodios sin temporada identificada de “${show.show}”`
-      : `la temporada ${String(season).padStart(2, "0")} de “${show.show}”`;
+      ? t("series.unknownSelection", { show: show.show })
+      : t("series.seasonSelection", { season: String(season).padStart(2, "0"), show: show.show });
 
   const confirmed = await confirmModal({
-    title: isWholeShow ? "Mover serie a la papelera" : "Mover temporada a la papelera",
+    title: t(isWholeShow ? "series.trashShow" : "series.trashSeason"),
     danger: true,
-    confirmLabel: "Mover a papelera",
+    confirmLabel: t("movies.trashConfirm"),
     bodyNode: el("div", {}, [
-      el("p", {}, `Se moverá ${selectionLabel} a la papelera de la NAS.`),
-      el("p", {}, "Los episodios podrán restaurarse individualmente desde la papelera."),
+      el("p", {}, t("series.trashSelection", { selection: selectionLabel })),
+      el("p", {}, t("series.restoreEpisodes")),
       el("div", { class: "member-tags" }, [
-        el("span", { class: "badge badge-danger" }, `${episodeCount} episodios`),
+        el("span", { class: "badge badge-danger" }, t("common.episodes", { count: episodeCount })),
         el("span", { class: "badge" }, formatBytes(totalSize)),
       ]),
     ]),
@@ -53,15 +54,14 @@ async function trashSeriesSelection(show, { scope = "show", season = null } = {}
   const result = await api.trashMoveSeries(show.show, scope, season);
   if (result.failed) {
     window.alert(
-      `${result.moved} de ${result.selected} archivos se movieron a la papelera. ` +
-      `${result.failed} no pudieron moverse.`
+      t("series.moveResult", result)
     );
   }
   await renderSeriesView();
 }
 
 async function renderSeasonPanel(panelEl, show, season) {
-  panelEl.innerHTML = '<div class="empty-state">Cargando…</div>';
+  panelEl.innerHTML = `<div class="empty-state">${t("common.loading")}</div>`;
   const episodes = await api.seasonDetail(show, season);
 
   const byRelease = new Map();
@@ -75,7 +75,7 @@ async function renderSeasonPanel(panelEl, show, season) {
     const releaseName = dirPath.split("/").pop();
     panelEl.appendChild(el("div", { class: "toolbar-info", style: "margin: 8px 0 4px;" }, releaseName));
     const table = el("table", { class: "data-table" }, [
-      el("thead", {}, el("tr", {}, [el("th", {}, "Episodio"), el("th", {}, "Tamaño"), el("th", {}, "Vídeo"), el("th", {}, "")])),
+      el("thead", {}, el("tr", {}, [el("th", {}, t("common.episode")), el("th", {}, t("common.size")), el("th", {}, t("common.video")), el("th", {}, "")])),
     ]);
     const tbody = el("tbody");
     eps
@@ -89,7 +89,7 @@ async function renderSeasonPanel(panelEl, show, season) {
             el(
               "td",
               {},
-              el("button", { class: "btn btn-danger btn-sm", onclick: () => trashEpisode(ep, renderSeriesView) }, "Papelera")
+              el("button", { class: "btn btn-danger btn-sm", onclick: () => trashEpisode(ep, renderSeriesView) }, t("common.trash"))
             ),
           ])
         );
@@ -103,21 +103,22 @@ function renderShowCard(show) {
   const details = el("details", { class: "show-card card" });
   details.appendChild(
     el("summary", {}, [
+      posterThumb(show.poster_url, show.show, "poster-thumb-show"),
       el("span", { class: "show-name" }, show.show),
-      el("span", { class: "badge" }, `${show.seasons.length} temporadas`),
+      el("span", { class: "badge" }, t("common.seasons", { count: show.seasons.length })),
       el("span", { class: "badge" }, formatBytes(show.total_size)),
       el(
         "button",
         {
           class: "btn btn-danger btn-sm",
-          title: `Mover la serie completa ${show.show} a la papelera`,
+          title: t("series.moveShowTitle", { show: show.show }),
           onclick: (event) => {
             event.preventDefault();
             event.stopPropagation();
             trashSeriesSelection(show);
           },
         },
-        "Papelera"
+        t("common.trash")
       ),
     ])
   );
@@ -128,24 +129,24 @@ function renderShowCard(show) {
       el(
         "span",
         { class: "season-name" },
-        season.season == null ? "Temporada sin identificar" : `Temporada ${String(season.season).padStart(2, "0")}`
+        season.season == null ? t("series.unidentified") : t("series.season", { season: String(season.season).padStart(2, "0") })
       ),
-      el("span", { class: "badge" }, `${season.episode_count} episodios`),
+      el("span", { class: "badge" }, t("common.episodes", { count: season.episode_count })),
       el("span", { class: "badge" }, formatBytes(season.total_size)),
-      season.has_multiple_releases ? el("span", { class: "badge badge-warning" }, "Varias versiones") : null,
+      season.has_multiple_releases ? el("span", { class: "badge badge-warning" }, t("series.multiple")) : null,
       el(
         "button",
         {
           class: "btn btn-danger btn-sm",
           title: season.season == null
-            ? "Mover los episodios sin temporada identificada a la papelera"
-            : `Mover la temporada ${season.season} a la papelera`,
+            ? t("series.moveUnknownTitle")
+            : t("series.moveSeasonTitle", { season: season.season }),
           onclick: (event) => {
             event.stopPropagation();
             trashSeriesSelection(show, { scope: "season", season: season.season });
           },
         },
-        "Papelera"
+        t("common.trash")
       ),
     ]);
     const panel = el("div", { class: "hidden" });
@@ -165,17 +166,17 @@ export async function renderSeriesView() {
   const countEl = qs("#series-count");
   const sort = qs("#series-sort").value;
 
-  wrap.innerHTML = '<div class="empty-state">Cargando…</div>';
+  wrap.innerHTML = `<div class="empty-state">${t("common.loading")}</div>`;
   try {
     cachedShows = await api.series();
   } catch (err) {
-    wrap.innerHTML = `<div class="empty-state">Error: ${err.message}</div>`;
+    wrap.innerHTML = `<div class="empty-state">${t("common.error", { error: err.message })}</div>`;
     return;
   }
 
-  countEl.textContent = `${cachedShows.length} series`;
+  countEl.textContent = t("common.shows", { count: cachedShows.length });
   if (cachedShows.length === 0) {
-    wrap.innerHTML = '<div class="empty-state">No hay series escaneadas todavía. Pulsa "Escanear".</div>';
+    wrap.innerHTML = `<div class="empty-state">${t("series.empty")}</div>`;
     return;
   }
 

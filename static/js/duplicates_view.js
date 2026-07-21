@@ -1,6 +1,7 @@
 import { api } from "./api.js";
 import { el, qs, qsa, formatBytes } from "./utils.js";
 import { confirmModal } from "./modal.js";
+import { t } from "./i18n.js";
 
 let currentType = "movie";
 
@@ -17,20 +18,20 @@ function memberBadges(m) {
 function scoreDetailBody(m) {
   const breakdown = m.score_breakdown || {};
   const rows = [
-    ["Archivo", m.filename],
-    ["Ruta", m.dir_path],
-    ["Tamaño", formatBytes(m.size_bytes)],
-    ["Resolución", m.width && m.height ? `${m.width}x${m.height}` : "—"],
-    ["Codec vídeo", m.video_codec || "—"],
+    [t("common.file"), m.filename],
+    [t("common.path"), m.dir_path],
+    [t("common.size"), formatBytes(m.size_bytes)],
+    [t("common.resolution"), m.width && m.height ? `${m.width}x${m.height}` : "—"],
+    [t("common.videoCodec"), m.video_codec || "—"],
     ["HDR", m.hdr_type || "—"],
-    ["Audio", `${m.audio_codec || "—"} ${m.audio_channels_label || ""}`.trim()],
-    ["Idiomas", (m.languages || []).join(", ") || "—"],
-    ["Score total", m.quality_score],
-    ["  · resolución", breakdown.resolution],
-    ["  · fuente", breakdown.source],
+    [t("common.audio"), `${m.audio_codec || "—"} ${m.audio_channels_label || ""}`.trim()],
+    [t("common.languages"), (m.languages || []).join(", ") || "—"],
+    [t("duplicates.totalScore"), m.quality_score],
+    [t("duplicates.scoreResolution"), breakdown.resolution],
+    [t("duplicates.scoreSource"), breakdown.source],
     ["  · HDR", breakdown.hdr],
-    ["  · audio", breakdown.audio],
-    ["  · bitrate", breakdown.bitrate],
+    [t("duplicates.scoreAudio"), breakdown.audio],
+    [t("duplicates.scoreBitrate"), breakdown.bitrate],
   ];
   const table = el("table", { class: "data-table" });
   rows.forEach(([k, v]) => {
@@ -46,11 +47,11 @@ async function trashMembers(members, onDone) {
     members.map((m) => el("li", {}, `${m.filename} (${formatBytes(m.size_bytes)})`))
   );
   const confirmed = await confirmModal({
-    title: `Mover ${members.length} archivo(s) a la papelera`,
+    title: t("duplicates.moveTitle", { count: members.length }),
     danger: true,
-    confirmLabel: "Mover a papelera",
+    confirmLabel: t("movies.trashConfirm"),
     bodyNode: el("div", {}, [
-      el("p", {}, "Estos archivos se moverán a la papelera de la NAS. Podrás restaurarlos después."),
+      el("p", {}, t("duplicates.moveMessage")),
       list,
     ]),
   });
@@ -66,19 +67,19 @@ function renderMemberRow(m, allMembersInBucket) {
       el("div", { class: "member-tags" }, [
         ...memberBadges(m),
         el("span", { class: "badge" }, formatBytes(m.size_bytes)),
-        m.is_recommended_keep ? el("span", { class: "badge badge-success" }, "Recomendado: mantener") : null,
+        m.is_recommended_keep ? el("span", { class: "badge badge-success" }, t("duplicates.keep")) : null,
       ]),
     ]),
     el("div", { class: "member-score" }, String(m.quality_score ?? "—")),
     el("div", { class: "member-actions" }, [
-      el("button", { class: "btn btn-ghost btn-sm", onclick: () => showDetail(m) }, "Detalle"),
+      el("button", { class: "btn btn-ghost btn-sm", onclick: () => showDetail(m) }, t("common.details")),
       el(
         "button",
         {
           class: "btn btn-danger btn-sm",
           onclick: () => trashMembers([m], () => refreshOpenGroup()),
         },
-        "Papelera"
+        t("common.trash")
       ),
     ]),
   ]);
@@ -88,7 +89,7 @@ function renderMemberRow(m, allMembersInBucket) {
 async function showDetail(m) {
   await confirmModal({
     title: m.filename,
-    confirmLabel: "Cerrar",
+    confirmLabel: t("common.close"),
     bodyNode: scoreDetailBody(m),
   });
 }
@@ -108,7 +109,7 @@ async function renderGroupBody(bodyEl, group, members) {
           style: "margin-bottom: 12px;",
           onclick: () => trashMembers(nonKeep, () => refreshOpenGroup()),
         },
-        `Aplicar recomendación (papelear ${nonKeep.length})`
+        t("duplicates.apply", { count: nonKeep.length })
       )
     );
   }
@@ -131,7 +132,7 @@ async function renderGroupBody(bodyEl, group, members) {
   const episodeKeys = Array.from(byEpisode.keys()).sort((a, b) => a - b);
   for (const epKey of episodeKeys) {
     const epMembers = byEpisode.get(epKey).sort((a, b) => (b.quality_score || 0) - (a.quality_score || 0));
-    bodyEl.appendChild(el("div", { class: "toolbar-info", style: "margin: 8px 0 4px;" }, `Episodio ${epKey}`));
+    bodyEl.appendChild(el("div", { class: "toolbar-info", style: "margin: 8px 0 4px;" }, `${t("common.episode")} ${epKey}`));
     epMembers.forEach((m) => bodyEl.appendChild(renderMemberRow(m)));
   }
 }
@@ -144,7 +145,7 @@ async function toggleGroup(groupEl, group) {
     return;
   }
   body.classList.remove("hidden");
-  body.innerHTML = '<div class="empty-state">Cargando…</div>';
+  body.innerHTML = `<div class="empty-state">${t("common.loading")}</div>`;
   refreshOpenGroup = async () => {
     const detail = await api.duplicateGroup(group.id);
     await renderGroupBody(body, detail.group, detail.members);
@@ -157,32 +158,32 @@ async function toggleGroup(groupEl, group) {
 export async function renderDuplicatesView() {
   const listEl = qs("#duplicates-list");
   const summaryEl = qs("#duplicates-summary");
-  listEl.innerHTML = '<div class="empty-state">Cargando…</div>';
+  listEl.innerHTML = `<div class="empty-state">${t("common.loading")}</div>`;
 
   let groups;
   try {
     groups = await api.duplicates(currentType);
   } catch (err) {
-    listEl.innerHTML = `<div class="empty-state">Error: ${err.message}</div>`;
+    listEl.innerHTML = `<div class="empty-state">${t("common.error", { error: err.message })}</div>`;
     return;
   }
 
   if (groups.length === 0) {
     summaryEl.textContent = "";
-    listEl.innerHTML = '<div class="empty-state">No se han detectado duplicados en esta categoría.</div>';
+    listEl.innerHTML = `<div class="empty-state">${t("duplicates.none")}</div>`;
     return;
   }
 
   const totalWasted = groups.reduce((sum, g) => sum + (g.wasted_size || 0), 0);
-  summaryEl.textContent = `${groups.length} grupos · ${formatBytes(totalWasted)} recuperables`;
+  summaryEl.textContent = t("duplicates.groups", { count: groups.length, size: formatBytes(totalWasted) });
 
   listEl.innerHTML = "";
   for (const group of groups) {
     const groupEl = el("div", { class: "dup-group" }, [
       el("div", { class: "dup-group-header" }, [
         el("div", { class: "dup-group-title" }, group.display_title),
-        el("span", { class: "badge" }, `${group.member_count} copias`),
-        el("span", { class: "badge badge-warning" }, `${formatBytes(group.wasted_size)} recuperables`),
+        el("span", { class: "badge" }, t("common.copies", { count: group.member_count })),
+        el("span", { class: "badge badge-warning" }, t("common.recoverable", { value: formatBytes(group.wasted_size) })),
       ]),
       el("div", { class: "dup-group-body hidden" }),
     ]);

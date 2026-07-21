@@ -6,6 +6,7 @@ from flask import Blueprint, jsonify, request
 
 import config
 from db import db
+from .localization import text
 
 bp = Blueprint("trash_api", __name__, url_prefix="/api/trash")
 
@@ -83,10 +84,10 @@ def _move_one_to_trash(conn, media_item_id):
 def move():
     data = request.get_json(silent=True) or {}
     if not data.get("confirm"):
-        return jsonify({"error": "se requiere confirm=true"}), 400
+        return jsonify({"error": text("se requiere confirm=true", "confirm=true is required")}), 400
     ids = data.get("media_item_ids") or []
     if not ids:
-        return jsonify({"error": "media_item_ids vacío"}), 400
+        return jsonify({"error": text("media_item_ids vacío", "media_item_ids is empty")}), 400
 
     conn = db.get_connection()
     results = [_move_one_to_trash(conn, i) for i in ids]
@@ -99,21 +100,21 @@ def move_series():
     """Move all active episodes in a show or season to the trash."""
     data = request.get_json(silent=True) or {}
     if not data.get("confirm"):
-        return jsonify({"error": "se requiere confirm=true"}), 400
+        return jsonify({"error": text("se requiere confirm=true", "confirm=true is required")}), 400
 
     show = data.get("show")
     if not isinstance(show, str) or not show.strip():
-        return jsonify({"error": "show es obligatorio"}), 400
+        return jsonify({"error": text("show es obligatorio", "show is required")}), 400
 
     scope = data.get("scope")
     if scope not in {"show", "season"}:
-        return jsonify({"error": "scope debe ser 'show' o 'season'"}), 400
+        return jsonify({"error": text("scope debe ser 'show' o 'season'", "scope must be 'show' or 'season'")}), 400
 
     season = data.get("season")
     if scope == "season" and season is not None and (
         isinstance(season, bool) or not isinstance(season, int)
     ):
-        return jsonify({"error": "season debe ser un número entero o null"}), 400
+        return jsonify({"error": text("season debe ser un número entero o null", "season must be an integer or null")}), 400
 
     conn = db.get_connection()
     params = [show]
@@ -135,7 +136,7 @@ def move_series():
         params,
     ).fetchall()
     if not rows:
-        return jsonify({"error": "no se encontraron episodios activos para esa selección"}), 404
+        return jsonify({"error": text("no se encontraron episodios activos para esa selección", "no active episodes were found for that selection")}), 404
 
     results = [_move_one_to_trash(conn, row["id"]) for row in rows]
     conn.commit()
@@ -164,7 +165,7 @@ def list_trash():
 def restore():
     data = request.get_json(silent=True) or {}
     if not data.get("confirm"):
-        return jsonify({"error": "se requiere confirm=true"}), 400
+        return jsonify({"error": text("se requiere confirm=true", "confirm=true is required")}), 400
     ids = data.get("trash_item_ids") or []
 
     conn = db.get_connection()
@@ -199,7 +200,7 @@ def restore():
 def empty():
     data = request.get_json(silent=True) or {}
     if not data.get("confirm"):
-        return jsonify({"error": "se requiere confirm=true"}), 400
+        return jsonify({"error": text("se requiere confirm=true", "confirm=true is required")}), 400
 
     conn = db.get_connection()
     if data.get("all"):
@@ -207,7 +208,7 @@ def empty():
     else:
         ids = data.get("trash_item_ids") or []
         if not ids:
-            return jsonify({"error": "trash_item_ids vacío (o usa all:true)"}), 400
+            return jsonify({"error": text("trash_item_ids vacío (o usa all:true)", "trash_item_ids is empty (or use all:true)")}), 400
         placeholders = ",".join("?" for _ in ids)
         rows = conn.execute(
             f"SELECT * FROM trash_item WHERE status = 'trashed' AND id IN ({placeholders})", ids

@@ -1,8 +1,11 @@
 from collections import OrderedDict
+from urllib.parse import quote
 
 from flask import Blueprint, jsonify, request
 
+import tmdb_client
 from db import db
+from .localization import text
 
 bp = Blueprint("series_api", __name__, url_prefix="/api/series")
 
@@ -25,7 +28,16 @@ def series_tree():
     for r in rows:
         show = r["show_title_raw"]
         if show not in shows:
-            shows[show] = {"show": show, "total_size": 0, "seasons": []}
+            shows[show] = {
+                "show": show,
+                "total_size": 0,
+                "seasons": [],
+                "poster_url": (
+                    f"/api/posters/tv?title={quote(show, safe='')}"
+                    if tmdb_client.is_enabled()
+                    else None
+                ),
+            }
         shows[show]["total_size"] += r["total_size"] or 0
         shows[show]["seasons"].append(
             {
@@ -49,7 +61,7 @@ def season_detail(show, season_key):
         try:
             season = int(season_key)
         except ValueError:
-            return jsonify({"error": "temporada no válida"}), 400
+            return jsonify({"error": text("temporada no válida", "invalid season")}), 400
         season_filter = "m.season = ?"
         params = (show, season)
 
