@@ -20,5 +20,11 @@ DB_PATH = os.path.join(BASE_DIR, _cfg["db_path"])
 SERVER_HOST = _cfg["server"]["host"]
 SERVER_PORT = _cfg["server"]["port"]
 
+_tmdb = _cfg.get("tmdb", {})
+TMDB_READ_ACCESS_TOKEN = os.environ.get("TMDB_READ_ACCESS_TOKEN") or _tmdb.get(
+    "read_access_token", ""
+)
+TMDB_LANGUAGE = _tmdb.get("language", "es-ES")
+
 SCORING_WEIGHTS = _cfg["scoring"]["weights"]
 SCORING_TIE_EPSILON = _cfg["scoring"]["tie_epsilon"]

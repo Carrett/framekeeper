@@ -1,3 +1,5 @@
+import { locale, t } from "./i18n.js";
+
 export function formatBytes(bytes) {
   if (bytes == null) return "—";
   const units = ["B", "KB", "MB", "GB", "TB"];
@@ -22,7 +24,7 @@ export function formatDuration(seconds) {
 
 export function formatDate(epoch) {
   if (!epoch) return "—";
-  return new Date(epoch * 1000).toLocaleDateString("es-ES");
+  return new Date(epoch * 1000).toLocaleDateString(locale);
 }
 
 export function qs(selector, root = document) {
@@ -46,6 +48,25 @@ export function el(tag, attrs = {}, children = []) {
     node.appendChild(typeof child === "string" ? document.createTextNode(child) : child);
   }
   return node;
+}
+
+export function posterThumb(src, label, className = "") {
+  const wrap = el("span", {
+    class: `poster-thumb ${className}`.trim(),
+    role: "img",
+    "aria-label": t("poster.label", { label }),
+  }, el("span", { class: "poster-placeholder", "aria-hidden": "true" }, "▰"));
+  if (src) {
+    wrap.appendChild(
+      el("img", {
+        src,
+        alt: "",
+        loading: "lazy",
+        onerror: (event) => event.currentTarget.remove(),
+      })
+    );
+  }
+  return wrap;
 }
 
 export function debounce(fn, wait) {

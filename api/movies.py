@@ -2,7 +2,9 @@ import json
 
 from flask import Blueprint, jsonify, request
 
+import tmdb_client
 from db import db
+from .localization import text
 
 bp = Blueprint("movies_api", __name__, url_prefix="/api/movies")
 
@@ -32,6 +34,7 @@ JOINS = """
 def _row_to_dict(row):
     d = dict(row)
     d["languages"] = json.loads(d.pop("languages_json")) if d.get("languages_json") else []
+    d["poster_url"] = f"/api/posters/movie/{d['id']}" if tmdb_client.is_enabled() else None
     return d
 
 
@@ -52,7 +55,7 @@ def movie_detail(item_id):
     conn = db.get_connection()
     row = conn.execute(f"SELECT {LIST_FIELDS} {JOINS} AND m.id = ?", (item_id,)).fetchone()
     if not row:
-        return jsonify({"error": "not found"}), 404
+        return jsonify({"error": text("no encontrada", "not found")}), 404
 
     result = _row_to_dict(row)
     raw = conn.execute(

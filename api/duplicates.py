@@ -3,6 +3,7 @@ import json
 from flask import Blueprint, jsonify, request
 
 from db import db
+from .localization import text
 
 bp = Blueprint("duplicates_api", __name__, url_prefix="/api/duplicates")
 
@@ -44,7 +45,7 @@ def group_detail(group_id):
     conn = db.get_connection()
     group = conn.execute("SELECT * FROM duplicate_group WHERE id = ?", (group_id,)).fetchone()
     if not group:
-        return jsonify({"error": "not found"}), 404
+        return jsonify({"error": text("no encontrado", "not found")}), 404
 
     members = conn.execute(
         """
