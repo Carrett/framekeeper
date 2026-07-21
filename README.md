@@ -4,6 +4,8 @@ Framekeeper is a self-hosted web application for inspecting, organizing, and ded
 
 The interface is currently in Spanish, while this documentation is in English.
 
+![Framekeeper movie library dashboard](docs/images/framekeeper-dashboard.png)
+
 ## What it does
 
 - Browses movies and TV series from a single web interface.
