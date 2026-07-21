@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Framekeeper — Tu biblioteca, bajo control</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11Z"/><path d="m9.5 8 6 4-6 4V8Z"/></svg>
+      </span>
+      <span><strong class="brand-mark">framekeeper</strong><small class="brand-sub">MEDIA LIBRARY INTELLIGENCE</small></span>
+    </div>
+    <nav class="tabs" id="main-tabs" aria-label="Navegación principal">
+      <button class="tab-btn active" data-tab="movies"><span class="nav-icon">▰</span>Películas</button>
+      <button class="tab-btn" data-tab="series"><span class="nav-icon">▦</span>Series</button>
+      <button class="tab-btn" data-tab="duplicates"><span class="nav-icon">◇</span>Duplicados</button>
+      <button class="tab-btn" data-tab="trash"><span class="nav-icon">⌫</span>Papelera</button>
+    </nav>
+    <div class="topbar-actions">
+      <span id="mount-banner" class="badge badge-warning hidden">NAS no montada</span>
+      <button id="scan-btn" class="btn btn-primary"><span class="scan-icon">⌁</span> Escanear biblioteca</button>
+    </div>
+  </header>
+
+  <div id="scan-progress" class="progress-wrap hidden">
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-label" id="progress-label"></div>
+    <button id="scan-cancel-btn" class="btn btn-ghost btn-sm">Cancelar</button>
+  </div>
+
+  <main>
+    <section class="page-heading">
+      <div>
+        <span class="eyebrow">BIBLIOTECA / <span id="view-eyebrow">PELÍCULAS</span></span>
+        <h1 id="view-title">Tu colección de películas</h1>
+        <p id="view-description">Explora, compara y mantén tu filmoteca perfectamente organizada.</p>
+      </div>
+      <div class="system-status"><span class="status-dot"></span><span><strong>Sistema listo</strong><small>Biblioteca conectada</small></span></div>
+    </section>
+    <section id="view-movies" class="view active">
+      <div class="toolbar surface-toolbar">
+        <div class="toolbar-label"><span>Vista general</span><small>Todos tus archivos de vídeo</small></div>
+        <label class="field">
+          Ordenar por
+          <select id="movies-sort">
+            <option value="size">Tamaño</option>
+            <option value="name">Nombre</option>
+            <option value="quality">Calidad</option>
+            <option value="date">Fecha</option>
+          </select>
+        </label>
+        <label class="field">
+          Orden
+          <select id="movies-order">
+            <option value="desc">Descendente</option>
+            <option value="asc">Ascendente</option>
+          </select>
+        </label>
+        <span class="toolbar-info" id="movies-count"></span>
+      </div>
+      <div id="movies-table-wrap"><div class="empty-state">Cargando…</div></div>
+    </section>
+
+    <section id="view-series" class="view hidden">
+      <div class="toolbar surface-toolbar">
+        <div class="toolbar-label"><span>Catálogo de series</span><small>Agrupado por temporadas</small></div>
+        <label class="field">
+          Ordenar por
+          <select id="series-sort">
+            <option value="size">Tamaño</option>
+            <option value="name">Nombre</option>
+          </select>
+        </label>
+        <span class="toolbar-info" id="series-count"></span>
+      </div>
+      <div id="series-tree"><div class="empty-state">Cargando…</div></div>
+    </section>
+
+    <section id="view-duplicates" class="view hidden">
+      <div class="toolbar surface-toolbar">
+        <div class="subtabs" id="duplicates-subtabs">
+          <button class="subtab-btn active" data-dup-type="movie">Películas</button>
+          <button class="subtab-btn" data-dup-type="series">Series</button>
+        </div>
+        <span class="toolbar-info" id="duplicates-summary"></span>
+      </div>
+      <div id="duplicates-list"><div class="empty-state">Cargando…</div></div>
+    </section>
+
+    <section id="view-trash" class="view hidden">
+      <div class="toolbar surface-toolbar">
+        <div class="toolbar-label"><span>Elementos eliminados</span><small>Puedes restaurarlos cuando quieras</small></div>
+        <span class="toolbar-info" id="trash-count"></span>
+        <button id="empty-trash-btn" class="btn btn-danger btn-sm">Vaciar papelera</button>
+      </div>
+      <div id="trash-list"><div class="empty-state">Cargando…</div></div>
+    </section>
+  </main>
+
+  <div id="modal-root"></div>
+
+  <script type="module" src="/js/app.js"></script>
+</body>
+</html>

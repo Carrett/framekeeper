@@ -1,0 +1,27 @@
+{
+  "nas": {
+    "host": "nas.local",
+    "share": "media",
+    "mount_point": "/mnt/nas-media",
+    "movies_dir": "MOVIES",
+    "series_dir": "SERIES",
+    "trash_dirname": "#trash-mdmgr",
+    "credentials_file": "/home/YOUR_USER/.config/mdmgr/nas.cred",
+    "mount_wrapper": "/usr/local/sbin/mdmgr-mount-nas.sh"
+  },
+  "db_path": "mdmgr.db",
+  "server": {
+    "host": "127.0.0.1",
+    "port": 5115
+  },
+  "scoring": {
+    "weights": {
+      "resolution": 35,
+      "source": 25,
+      "hdr": 15,
+      "audio": 20,
+      "bitrate": 5
+    },
+    "tie_epsilon": 2.0
+  }
+}

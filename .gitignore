@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+mdmgr.db
+mdmgr.db-journal
+*.egg-info/
+.env
+.env.*
+!.env.example
+config.json
+.claude/
+*.cred
+*.pem
+*.key
