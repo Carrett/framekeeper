@@ -9,6 +9,9 @@ from db import db
 
 bp = Blueprint("trash_api", __name__, url_prefix="/api/trash")
 
+PLEX_IGNORE_FILENAME = ".plexignore"
+PLEX_IGNORE_CONTENT = "*\n"
+
 
 def _now():
     return datetime.now(timezone.utc).isoformat()
@@ -20,6 +23,35 @@ def _trash_root_for(path):
     return os.path.join(config.SERIES_DIR, config.TRASH_DIRNAME)
 
 
+def ensure_plex_ignores():
+    """Keep Plex from indexing recoverable files as library media."""
+    for library_root in (config.MOVIES_DIR, config.SERIES_DIR):
+        trash_root = os.path.join(library_root, config.TRASH_DIRNAME)
+        if not os.path.isdir(trash_root):
+            continue
+
+        ignore_path = os.path.join(trash_root, PLEX_IGNORE_FILENAME)
+        if os.path.exists(ignore_path):
+            continue
+
+        try:
+            with open(ignore_path, "x", encoding="utf-8") as ignore_file:
+                ignore_file.write(PLEX_IGNORE_CONTENT)
+        except FileExistsError:
+            pass
+        except OSError:
+            # Moving/restoring files should remain available even if the NAS
+            # permissions do not allow creating Plex's optional ignore file.
+            pass
+
+
+def _ensure_trash_root(path):
+    trash_root = _trash_root_for(path)
+    os.makedirs(trash_root, exist_ok=True)
+    ensure_plex_ignores()
+    return trash_root
+
+
 def _move_one_to_trash(conn, media_item_id):
     row = conn.execute("SELECT * FROM media_item WHERE id = ?", (media_item_id,)).fetchone()
     if not row:
@@ -27,8 +59,7 @@ def _move_one_to_trash(conn, media_item_id):
     if not os.path.exists(row["path"]):
         return {"id": media_item_id, "ok": False, "error": "el archivo ya no existe en la NAS"}
 
-    trash_root = _trash_root_for(row["path"])
-    os.makedirs(trash_root, exist_ok=True)
+    trash_root = _ensure_trash_root(row["path"])
     dest = os.path.join(trash_root, f"{media_item_id}_{row['filename']}")
 
     try:

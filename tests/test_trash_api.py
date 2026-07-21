@@ -93,6 +93,35 @@ class TestMoveSeriesToTrash(unittest.TestCase):
             0,
         )
 
+        ignore_path = os.path.join(self.series_dir, "#trash", ".plexignore")
+        with open(ignore_path, encoding="utf-8") as ignore_file:
+            self.assertEqual(ignore_file.read(), "*\n")
+
+    def test_adds_plex_ignore_to_an_existing_trash_directory(self):
+        trash_dir = os.path.join(self.series_dir, "#trash")
+        os.makedirs(trash_dir)
+        trashed_episode = os.path.join(trash_dir, "old-S01E01.mkv")
+        with open(trashed_episode, "wb") as episode_file:
+            episode_file.write(b"video")
+
+        trash.ensure_plex_ignores()
+
+        with open(os.path.join(trash_dir, ".plexignore"), encoding="utf-8") as ignore_file:
+            self.assertEqual(ignore_file.read(), "*\n")
+        self.assertTrue(os.path.exists(trashed_episode))
+
+    def test_does_not_overwrite_an_existing_plex_ignore(self):
+        trash_dir = os.path.join(self.series_dir, "#trash")
+        os.makedirs(trash_dir)
+        ignore_path = os.path.join(trash_dir, ".plexignore")
+        with open(ignore_path, "w", encoding="utf-8") as ignore_file:
+            ignore_file.write("custom-rule\n")
+
+        trash.ensure_plex_ignores()
+
+        with open(ignore_path, encoding="utf-8") as ignore_file:
+            self.assertEqual(ignore_file.read(), "custom-rule\n")
+
     def test_moves_the_remaining_complete_show(self):
         first_id, first_path = self.add_episode("Example Show", 1, "S01E01.mkv")
         second_id, second_path = self.add_episode("Example Show", 2, "S02E01.mkv")

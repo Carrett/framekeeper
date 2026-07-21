@@ -4,6 +4,7 @@ from flask import Flask
 
 import config
 from api import register_blueprints
+from api import trash
 from db import db
 from mount import mount_manager
 from scanner import scan_service
@@ -17,6 +18,7 @@ def create_app():
     db.init_db()
     scan_service.recover_stale_runs()
     mount_manager.ensure_mounted()
+    trash.ensure_plex_ignores()
 
     register_blueprints(app)
 
